@@ -57,17 +57,23 @@ app.put('/products/:id', (req,res)=> {
         res.status(400).send()
     }
     //use lodash to specify the fields you want to allow update on
-    const body = _.pick(req.body, ['product_name', 'product_category', 'price', 'description', 'quantity']);
+    const body = _.pick(req.body, ['product_name', 'product_category', 'price', 'description']);
+    let quantityPassed = 1;
     
+    if(req.body.quantity){
+        quantityPassed = req.body.quantity;
+        console.log("new quantity", quantityPassed);
+    }
+
     ProductModel.findByIdAndUpdate(id, {
         $set: body,
         $inc: {
-            quantity: -1                    //(body.quantity)
+            quantity: -quantityPassed                //(body.quantity)
         }
     }, {new: true}).then((product) => {
         res.send({product})
     }, (err) => {
-        res.status(400).send()
+        res.status(400).send({"error": err})
     })
 })
 
